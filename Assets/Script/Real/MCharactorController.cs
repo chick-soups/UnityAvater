@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Example {
+namespace Real {
     public class MCharacterController 
     {
         private string skeleton;
@@ -17,79 +17,95 @@ namespace Example {
 
         public MCharacterController(string skeleton,string head,string chest,string hand,string leg)
         {
-            meshMgr = new SkinnedMeshMgr();
-
             this.skeleton = skeleton;
             this.head = head;
             this.chest = chest;
             this.hand = hand;
             this.leg = leg;
-
             CreateCharactor();
         }
 
         public void ChangeSuit(string head, string chest, string hand, string leg)
         {
-
+            ChangePart(this.head, head);
+            ChangePart(this.chest, chest);
+            ChangePart(this.hand, hand);
+            ChangePart(this.leg, leg);
+            this.head = head;
+            this.chest = chest;
+            this.hand = hand;
+            this.leg = leg;
+            meshMgr.CombineMeshRenderers();
         }
         public void ChangeHead(string head)
         {
+
+           ChangePart(this.head, head);
             this.head = head;
-            CreateCharactor();
+            meshMgr.CombineMeshRenderers();
+
+
         }
+
         public void ChangeChest(string chest)
         {
+            ChangePart(this.chest,chest);
             this.chest = chest;
-            CreateCharactor();
+            meshMgr.CombineMeshRenderers();
+
         }
+
         public void ChangeHand(string hand)
         {
+            ChangePart(this.hand, hand);
             this.hand = hand;
-            CreateCharactor();
+            meshMgr.CombineMeshRenderers();
+
         }
 
         public void ChangeLeg(string leg)
         {
+            ChangePart(this.leg, leg);
             this.leg = leg;
-            CreateCharactor();
+            meshMgr.CombineMeshRenderers();
+
+        }
+
+        private void ChangePart(string oldPartName,string newPartName)
+        {
+            if (oldPartName != newPartName)
+            {
+                SkinnedMeshRenderer renderer = GetSkinnedMeshRenderer(newPartName);
+                meshMgr.ChangeASkinnedMeshRenderer(oldPartName, renderer); 
+            }
         }
 
         public void Breath()
         {
             animation.wrapMode = WrapMode.Loop;
             animation.Play("breath");
-   
         }
 
         private void CreateCharactor()
         {
-            if (skeletonOjbect != null)
-            {
-                GameObject.DestroyImmediate(skeletonOjbect);
-            }
             GameObject assetSkeleiton = Resources.Load<GameObject>(DefinedConstant.RESOURCE_PREFABS_PATH + skeleton);
             skeletonOjbect = GameObject.Instantiate<GameObject>(assetSkeleiton);
             animation = skeletonOjbect.GetComponent<Animation>();
-            List<GameObject> tempBody = new List<GameObject>();
             List<SkinnedMeshRenderer> renderers = new List<SkinnedMeshRenderer>();
-
             string[] parts = new string[] { head, chest, hand, leg };
             for (int i = 0; i < parts.Length; i++)
             {
-                GameObject origin = Resources.Load<GameObject>(DefinedConstant.RESOURCE_PREFABS_PATH + parts[i]);
-                GameObject instance = GameObject.Instantiate<GameObject>(origin);
-                tempBody.Add(instance);
-                renderers.Add(instance.GetComponentInChildren<SkinnedMeshRenderer>());
+                SkinnedMeshRenderer renderer = GetSkinnedMeshRenderer(parts[i]);
+                renderers.Add(renderer);
             }
+            meshMgr = new SkinnedMeshMgr(skeletonOjbect, renderers, false);
+        }
 
-            meshMgr.CombineMeshRenderers(skeletonOjbect, renderers, false);
-
-
-            for (int i = 0; i < tempBody.Count; i++)
-            {
-                GameObject.Destroy(tempBody[i]);
-            }
-           
+        private SkinnedMeshRenderer GetSkinnedMeshRenderer(string partName)
+        {
+            GameObject origin = Resources.Load<GameObject>(DefinedConstant.RESOURCE_PREFABS_PATH + partName);
+            GameObject instance = GameObject.Instantiate<GameObject>(origin);
+            return instance.GetComponentInChildren<SkinnedMeshRenderer>();
         }
     }
 
