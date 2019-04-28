@@ -11,9 +11,38 @@ namespace Real
 
 
         // Use this for initialization
-        void Start()
+        IEnumerator  Start()
         {
             ChangeSuits(4);
+            Debug.Log(Time.frameCount);
+            yield return new WaitForSeconds(1f);
+            ChangeChest(4);
+            Debug.Log(Time.frameCount);
+            yield return new WaitForSeconds(0.5f);
+            ChangeChest(6);
+            Debug.Log(Time.frameCount);
+            yield return new WaitForSeconds(0.5f);
+            ChangeChest(8);
+            Debug.Log(Time.frameCount);
+            yield return new WaitForSeconds(0.5f);
+            ChangeHand(4);
+            Debug.Log(Time.frameCount);
+            yield return new WaitForSeconds(0.5f);
+            ChangeHand(6);
+            Debug.Log(Time.frameCount);
+            yield return new WaitForSeconds(0.5f);
+            ChangeHand(8);
+            Debug.Log(Time.frameCount);
+            yield return new WaitForSeconds(0.5f);
+            ChangeWeapon(4);
+            Debug.Log(Time.frameCount);
+            yield return new WaitForSeconds(0.5f);
+            ChangeWeapon(6);
+            Debug.Log(Time.frameCount);
+            yield return new WaitForSeconds(0.5f);
+            ChangeWeapon(8);
+            Debug.Log(Time.frameCount);
+            yield return new WaitForSeconds(0.5f);
         }
 
         public void ChangeSuits(int suitNumber)
@@ -32,7 +61,7 @@ namespace Real
             }
             mCharacter.ChangeSuit(head, chest, hand, leg,weapon);
         }
-        public void ChangHead(int BelongedSuitNumber)
+        public void ChangeHead(int BelongedSuitNumber)
         {
             string index = BelongedSuitNumber.ToString("000");
             string head = skeleton + "_" + index + "_tou";

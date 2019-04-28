@@ -10,9 +10,8 @@ namespace Real
         private SkinnedMeshRenderer skinnedMeshRenderer;
         private GameObject skeleton;
         Transform[] skeletonTransforms;
-
         private Dictionary<string, AppearancePart> appearanceParts;
-
+        private List<Vector2[]> oldUVs;
         private bool shouldCombineMaterials = false;
 
         public SkinnedMeshMgr(GameObject skeleton, List<SkinnedMeshRenderer> renderers, bool combineMaterial)
@@ -93,6 +92,7 @@ namespace Real
             List<Transform> bones = new List<Transform>();
             List<CombineInstance> instances = new List<CombineInstance>();
             List<Material> materials = new List<Material>();
+            Material combinedMaterial = null ;
 
             foreach (var item in parts.Values)
             {
@@ -101,12 +101,22 @@ namespace Real
                 materials.AddRange(item.Materials);
             }
 
+            if (combineMaterials)
+            {
+               combinedMaterial=  CombineMaterials(instances.ToArray(),materials.ToArray());
+            }
 
             skinnedMeshRenderer.sharedMesh.CombineMeshes(instances.ToArray(), combineMaterials, false, false);
             skinnedMeshRenderer.bones = bones.ToArray();
             if (combineMaterials)
             {
-                CombineMaterials(materials.ToArray());
+                skinnedMeshRenderer.material = combinedMaterial;
+
+                //恢复到初始UV坐标
+                for (int i = 0; i < instances.Count; i++)
+                {
+                    instances[i].mesh.uv = oldUVs[i];
+                }
             }
             else
             {
@@ -114,14 +124,44 @@ namespace Real
             }
         }
 
-        private void CombineMaterials(Material[] materials)
+        private Material CombineMaterials(CombineInstance[] combineInstances, Material[] materials)
         {
-            
+            //创建新图集
+            Texture2D[] texturesTobePacked = new Texture2D[materials.Length];
+            for (int i = 0; i < materials.Length; i++)
+            {
+                texturesTobePacked[i] = materials[i].mainTexture as Texture2D;
+            }
+            Texture2D texture = new Texture2D(512, 512,TextureFormat.BGRA32,false);
+            Rect[] altasRects= texture.PackTextures(texturesTobePacked, 0);
+
+            //创建新材质球，将图集作为贴图
+            Material mat = new Material(Shader.Find("Mobile/Diffuse"));
+            mat.mainTexture = texture;
+            skinnedMeshRenderer.materials = new Material[] { mat };
+
+            oldUVs = new List<Vector2[]>();
+            //重置UV坐标
+            for (int i = 0; i < combineInstances.Length; i++)
+            {
+
+                Vector2[] oldUV =  combineInstances[i].mesh.uv;
+                Vector2[] newUV = new Vector2[oldUV.Length];
+                for (int j = 0; j < newUV.Length; j++)
+                {
+                    newUV[j] = new Vector2(altasRects[i].x + oldUV[j].x * altasRects[i].width, altasRects[i].y + oldUV[j].y * altasRects[i].width);
+                }
+                combineInstances[i].mesh.uv = newUV;
+
+                oldUVs.Add(oldUV);
+            }
+
+            return mat;
         }
 
         public void ChangeASkinnedMeshRenderer(string oldRendererName,SkinnedMeshRenderer newMeshRenderer)
         {
-            RemoveOldRendererData(oldRendererName);
+            RemoveRendererData(oldRendererName);
             AddRendererData(newMeshRenderer);
         }
 
@@ -136,7 +176,7 @@ namespace Real
             appearanceParts.Add(part.Name, part);
         }
 
-        private void RemoveOldRendererData(string rendererName)
+        private void RemoveRendererData(string rendererName)
         {
             if (appearanceParts.ContainsKey(rendererName))
             {

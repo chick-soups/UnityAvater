@@ -88,6 +88,7 @@ public class UCombineSkinnedMgr {
 				}
 				oldUV.Add(combineInstances[j].mesh.uv);
 				combineInstances[j].mesh.uv = uvb;
+               
 			}
 		}
 

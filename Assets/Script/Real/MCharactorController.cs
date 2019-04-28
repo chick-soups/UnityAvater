@@ -105,7 +105,7 @@ namespace Real {
                 SkinnedMeshRenderer renderer = GetSkinnedMeshRenderer(parts[i]);
                 renderers.Add(renderer);
             }
-            meshMgr = new SkinnedMeshMgr(skeletonOjbect, renderers, false);
+            meshMgr = new SkinnedMeshMgr(skeletonOjbect, renderers, true);
         }
 
         private SkinnedMeshRenderer GetSkinnedMeshRenderer(string partName)
