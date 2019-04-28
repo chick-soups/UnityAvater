@@ -23,13 +23,14 @@ namespace Real
             string chest = skeleton + "_" + index + "_shen";
             string hand = skeleton + "_" + index + "_shou";
             string leg = skeleton + "_" + index + "_jiao";
+            string weapon = "ch_we_one_hou_" + index;
             if (mCharacter == null)
             {
-                mCharacter = new MCharacterController(skeleton, head, chest, hand, leg);
+                mCharacter = new MCharacterController(skeleton, head, chest, hand, leg,weapon);
                 mCharacter.Breath();
                 return;
             }
-            mCharacter.ChangeSuit(head, chest, hand, leg);
+            mCharacter.ChangeSuit(head, chest, hand, leg,weapon);
         }
         public void ChangHead(int BelongedSuitNumber)
         {
@@ -57,6 +58,14 @@ namespace Real
             string index = BelongedSuitNumber.ToString("000");
             string leg = skeleton + "_" + index + "_jiao";
             mCharacter.ChangeLeg(leg);
+        }
+
+        public void ChangeWeapon(int BelongedSuitNumber)
+        {
+            string index = BelongedSuitNumber.ToString("000");
+            string weapon = "ch_we_one_hou_" + index;
+            mCharacter.AttachWeapon(weapon);
+
         }
     }
 }

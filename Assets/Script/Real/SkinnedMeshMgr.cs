@@ -46,7 +46,6 @@ namespace Real
             {
                 SkinnedMeshRenderer smr = renderers[i];
                 AppearancePart part = CreatPart(smr);
-                Debug.Log(part.Name);
                 parts.Add(part.Name, part);
             }
             return parts;
@@ -82,7 +81,6 @@ namespace Real
             if (root != skeleton)
             {
                 GameObject.Destroy(meshRenderer.transform.root.gameObject);
-                Debug.Log("Destory a meshRenderer ");
             }
             return part;
         }
@@ -118,7 +116,7 @@ namespace Real
 
         private void CombineMaterials(Material[] materials)
         {
-
+            
         }
 
         public void ChangeASkinnedMeshRenderer(string oldRendererName,SkinnedMeshRenderer newMeshRenderer)

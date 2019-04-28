@@ -10,22 +10,27 @@ namespace Real {
         private string chest;
         private string hand;
         private string leg;
+        private string weapon;
 
         public GameObject skeletonOjbect;
         private SkinnedMeshMgr meshMgr;
         private Animation animation;
+        private GameObject currentWeapon;
+        private Transform weaponAttachTransform;
 
-        public MCharacterController(string skeleton,string head,string chest,string hand,string leg)
+        public MCharacterController(string skeleton,string head,string chest,string hand,string leg,string weapon)
         {
             this.skeleton = skeleton;
             this.head = head;
             this.chest = chest;
             this.hand = hand;
             this.leg = leg;
+            this.weapon = weapon;
             CreateCharactor();
+            AttachWeapon(weapon);
         }
 
-        public void ChangeSuit(string head, string chest, string hand, string leg)
+        public void ChangeSuit(string head, string chest, string hand, string leg,string weapon)
         {
             ChangePart(this.head, head);
             ChangePart(this.chest, chest);
@@ -35,7 +40,9 @@ namespace Real {
             this.chest = chest;
             this.hand = hand;
             this.leg = leg;
+            this.weapon = weapon;
             meshMgr.CombineMeshRenderers();
+            AttachWeapon(weapon);
         }
         public void ChangeHead(string head)
         {
@@ -107,6 +114,32 @@ namespace Real {
             GameObject instance = GameObject.Instantiate<GameObject>(origin);
             return instance.GetComponentInChildren<SkinnedMeshRenderer>();
         }
+
+        public void AttachWeapon(string weaponName)
+        {
+            GameObject temp = Resources.Load<GameObject>(DefinedConstant.RESOURCE_PREFABS_PATH + weaponName);
+            if (weaponAttachTransform == null)
+            {
+                Transform[] trans = skeletonOjbect.GetComponentsInChildren<Transform>();
+                foreach (Transform item in trans)
+                {
+                    if(item.name== "weapon_hand_r")
+                    {
+                        weaponAttachTransform = item;
+                        break;
+                    }
+                }
+            }
+            if (currentWeapon != null)
+            {
+                GameObject.Destroy(currentWeapon);
+            }
+            currentWeapon = GameObject.Instantiate<GameObject>(temp,weaponAttachTransform);
+            currentWeapon.transform.localPosition = Vector3.zero;
+            currentWeapon.transform.localRotation = Quaternion.identity;
+            currentWeapon.transform.localScale = Vector3.one;
+        }
+
     }
 
 }
